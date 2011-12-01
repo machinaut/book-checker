@@ -8,7 +8,7 @@ static $lsins = 15; // Cost of insertion
 static $lsrep = 10; // Cost of replacement 
 static $lsdel = 15; // Cost of deletion
 // Length difference factor
-static $diffconst = 10;
+static $diffconst = 9;
 if (!isset($_POST["word"]) || empty($_POST["word"])) {
     // If no word to compare, do nothing
     echo "<p>Please pick a word.</p>";
