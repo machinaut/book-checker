@@ -1,0 +1,10 @@
+cheat.php
+---------
+To someone that really loves a good algorithmic challenge, this feels like cheating.
+But the duct-tape coder in me loves reusing code. And open source fan supports using
+a great (well-used) GNU project.
+
+Making the dictionary with aspell:
+ wget http://gutenberg.org/ebooks/2701.txt.utf8
+
+ aspell --encoding=utf-8 --local-data-dir=./ --lang=en clean < 2701.txt.utf8 > moby.dict
