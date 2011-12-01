@@ -3,6 +3,10 @@
 <head> <title> OH PHP HOW THIS GET HERE I AM NOT GOOD WITH COMPUTER </title> </head>
 <body>
 <?php 
+// Dictionary filename
+static $dictfilename = "./moby.dict";
+// Max number of results to show
+static $maxresults = 30;
 // Levenshtein Distance Constants (all ints)
 static $lsins = 1; // Cost of insertion
 static $lsrep = 1; // Cost of replacement
@@ -13,15 +17,15 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     echo "<p>Please pick a word.</p>";
 } else {
     // grab the dictionary, stored in parsed JSON
-    $json = file_get_contents("moby.dict"); 
+    global $dictfilename;
+    $json = file_get_contents($dictfilename); 
 
-    // iterate over every word in the dictionary
-    $jsonIterator = new RecursiveIteratorIterator(
-            new RecursiveArrayIterator(json_decode($json, TRUE)),
-            RecursiveIteratorIterator::SELF_FIRST);
+    // iterator to read the JSON dictionary 
+    $dictionary = json_decode($json, TRUE, 2);
+    $count = count($dictionary);
+    echo "<p>Read $count words from dictionary: $dictfilename.</p>";
 
     // class to store word and associated data
-    echo "<p>Class DictWord</p>";
     class DictWord {
         var $dword; // Actual dictionary word this represents
         var $occur; // occurance of dictionary word in test
@@ -48,9 +52,14 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
             $this->score = $lsval;
         }
         // static comparing, used for sorting an array of these
+        // Iversely compare score (distance), smaller is better
         static function cmp_obj ( $a, $b ) {
             if ($a->score == $b->score) { 
-                return 0; 
+                // same score, sort by occurences, more is better
+                if ($a->occur == $b->occur) {
+                    return 0;
+                } 
+                return ($a->occur < $b->occur) ? +1 : -1;
             }
             return ($a->score > $b->score) ? +1 : -1;
         }
@@ -66,7 +75,7 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     $word = $_GET["word"];
     // Iterate over the dictionary and calculate a score for each word
     // We know the dictionary is a shallow JSON object, so this is always "str"=>"str"
-    foreach ($jsonIterator as $key => $val) { 
+    foreach ($dictionary as $key => $val) { 
         $wordlist[] = new Dictword($word,$key,$val);
     } 
     // Now sort by scores to get the best dictionary words
@@ -76,7 +85,8 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     echo "<p>Suggesting for: $word.</p>";
     echo "<table><tr> <td>Dictionary Word</td> <td>Occurances in Text</td> 
             <td>Calculated Score</td> </tr>\n";
-    for ($i = 0; $i < 10; $i++) {
+    global $maxresults;
+    for ($i = 0; $i < $maxresults; $i++) {
         echo $wordlist[$i];
     }
     echo "</table>\n\n"; 
