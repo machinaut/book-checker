@@ -16,11 +16,9 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     // If no word to compare, do nothing
     echo "<p>Please pick a word.</p>";
 } else {
-    // grab the dictionary, stored in parsed JSON
+    // grab the dictionary, read in parsed JSON
     global $dictfilename;
     $json = file_get_contents($dictfilename); 
-
-    // iterator to read the JSON dictionary 
     $dictionary = json_decode($json, TRUE, 2);
     $count = count($dictionary);
     echo "<p>Read $count words from dictionary: $dictfilename.</p>";
@@ -30,13 +28,10 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
         var $dword; // Actual dictionary word this represents
         var $occur; // occurance of dictionary word in test
         var $score; // calculated score to given base word
-        // constructor
+
+        // CONSTRUCTOR: CALCULATE THE SCORE FOR THIS DICTIONARY WORD
         function DictWord ($base,$dictword,$occur) {
             $this->dword = $dictword;   // dictionary word
-
-            // CALCULATE THE SCORE FOR THIS DICTIONARY WORD
-            // --------------------------------------------
-            // ** MAGIC HAPPENS HERE **
 
             // INPUTS TO THE SCORE CALCULATION
             // Given Constants defined globally 
@@ -51,19 +46,21 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
             // SCORE CALCULATION
             $this->score = $lsval;
         }
-        // static comparing, used for sorting an array of these
-        // Iversely compare score (distance), smaller is better
-        static function cmp_obj ( $a, $b ) {
+
+        // SORT: COMPARE THE RANK FOR THIS DICTIONARY WORD
+        static function rank ( $a, $b ) {
+            // First sort by score, lower is better. (distance)
             if ($a->score == $b->score) { 
-                // same score, sort by occurences, more is better
+                // Then sort by occurences, more is better. (frequency)
                 if ($a->occur == $b->occur) {
                     return 0;
                 } 
-                return ($a->occur < $b->occur) ? +1 : -1;
+                return ($a->occur < $b->occur) ? +1 : -1; // more is better
             }
-            return ($a->score > $b->score) ? +1 : -1;
+            return ($a->score > $b->score) ? +1 : -1; // less is better
         }
-        // prettyprinting. Kind of evil there is HTML formatting in here
+
+        // PrettyPrinting. Kind of evil there is HTML formatting in here
         public function __toString() {
             return "<tr> <td>$this->dword</td> <td>$this->occur</td>
                 <td>$this->score</td> </tr>\n";
@@ -76,20 +73,29 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     // Iterate over the dictionary and calculate a score for each word
     // We know the dictionary is a shallow JSON object, so this is always "str"=>"str"
     foreach ($dictionary as $key => $val) { 
-        $wordlist[] = new Dictword($word,$key,$val);
+        if ($word == $key) { // stop prematurely if we find the word
+            $found = $word;
+            break;
+        }
+        $wordlist[] = new Dictword($word,$key,$val); // add to the dict and calc score
     } 
-    // Now sort by scores to get the best dictionary words
-    usort($wordlist, array("DictWord", "cmp_obj"));
+    // Check if we found the word, or not (then suggest words).
+    if (isset($found)) { 
+        echo "found"; 
+    } else {
+        // Now sort by scores to get the best dictionary words
+        usort($wordlist, array("DictWord", "rank"));
 
-    // Print it out as an HTML table to make it easy to look at
-    echo "<p>Suggesting for: $word.</p>";
-    echo "<table><tr> <td>Dictionary Word</td> <td>Occurances in Text</td> 
-            <td>Calculated Score</td> </tr>\n";
-    global $maxresults;
-    for ($i = 0; $i < $maxresults; $i++) {
-        echo $wordlist[$i];
+        // Print it out as an HTML table to make it easy to look at
+        echo "<p>Suggesting for: $word.</p>";
+        echo "<table><tr> <td>Dictionary Word</td> <td>Occurances in Text</td> 
+                <td>Calculated Score</td> </tr>\n";
+        global $maxresults;
+        for ($i = 0; $i < $maxresults; $i++) {
+            echo $wordlist[$i];
+        }
+        echo "</table>\n\n"; 
     }
-    echo "</table>\n\n"; 
 }
 ?>
 </body>
