@@ -17,6 +17,41 @@
 
     <!-- Le javascript -->
     <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        // If the word is correct, show it
+        $(document).ready(function() {
+            // attach a submit handler to the form; Thar be AJAX here
+            $("#checkform").submit(function(e) {
+                // Use button to tell the user that we're thinking
+                $("#button").addClass("disabled").text("Working...");
+                // stop form from submitting normally
+                e.preventDefault(); 
+                // setup the form to submit
+                var $form = $(this),
+                    word = $form.find('#word').val().toLowerCase(),
+                    url = $form.attr('action');
+                // AJAX POST
+                $.post(url,{word:word},function(d) {
+                    // Check if word is found or not
+                    if ($(d).is("#found")) { 
+                        // Found the word, give the box 'success' (green)
+                        $("#wordrow").removeClass("error").addClass("success")
+                            .find(".help-inline").text("Correct Word!");
+                    } else { 
+                        // Failed to find the word, give the box 'error' (red)
+                        $("#wordrow").removeClass("success").addClass("error")
+                            .find(".help-inline").text("Wrong Word!");
+                    }
+                    // get rid of old table
+                    $("#results").remove(); 
+                    // add new table
+                    $("#spellcheck").after($(d).find('table')); 
+                    // restore the button to it's original state (before 'Waiting...')
+                    $("#button").removeClass("disabled").text("Check That Word!");
+                });
+            });
+        });
+    </script>
 
   </head>
   <body>
@@ -85,7 +120,7 @@
       <div class="page-header">
         <h1>Lets check some spells <small>Or word some checks</small></h1>
       </div>
-      <form>
+      <form action="/check.php" id="checkform">
         <fieldset>
           <legend>Search Terms</legend>
           <div class="clearfix">
@@ -94,119 +129,22 @@
               <input id="book" type="text" placeholder="Moby Dick" disabled/>
             </div>
           </div><!-- /clearfix -->
-          <div class="clearfix success">
+          <div class="clearfix" id="wordrow">
             <label for="word">Word</label>
             <div class="xlarge input">
               <input id="word" type="text"/>
-              <span class="help-inline">Correct Word!</span>
+              <span class="help-inline"></span>
             </div>
           </div><!-- /clearfix -->
           <div class="actions">
-            <button class="btn primary">Check!</button>
+            <button class="btn primary" type="submit" id="button">Check That Word!</button>
           </div><!-- /actions -->
         </fieldset>
       </form>
     </section>
 
 
-    <?php 
-    // Dictionary filename
-    static $dictfilename = "./moby.dict";
-    // Max number of results to show
-    static $maxresults = 12;
-    // Levenshtein Distance Constants (all ints)
-    static $lsins = 1; // Cost of insertion
-    static $lsrep = 1; // Cost of replacement
-    static $lsdel = 1; // Cost of deletion
-    if (!isset($_GET["word"]) || empty($_GET["word"])) {
-        // If no word to compare, do nothing
-        //echo "<p>Please pick a word.</p>";
-    } else {
-        // grab the dictionary, read in parsed JSON
-        global $dictfilename;
-        $json = file_get_contents($dictfilename); 
-        $dictionary = json_decode($json, TRUE, 2);
-        $count = count($dictionary);
-        //echo "<p>Read $count words from dictionary: $dictfilename.</p>";
-  
-        // class to store word and associated data
-        class DictWord {
-            var $dword; // Actual dictionary word this represents
-            var $occur; // occurance of dictionary word in test
-            var $score; // calculated score to given base word
-  
-            // CONSTRUCTOR: CALCULATE THE SCORE FOR THIS DICTIONARY WORD
-            function DictWord ($base,$dictword,$occur) {
-                $this->dword = $dictword;   // dictionary word
-  
-                // INPUTS TO THE SCORE CALCULATION
-                // Given Constants defined globally 
-                global $lsins, $lsrep, $lsdel; // levenshtein distance costs
-                // Given Occurences of the word in the text (how 'common' the word is)
-                $this->occur = $occur;
-                // Calculate Levenshtein Distance (basically how 'different' the word is)
-                $lsval = levenshtein($dictword,$base,$lsins,$lsrep,$lsdel);
-                // Calculate Difference in word lenths between
-                $diff = strlen($dictword) - strlen($base);
-  
-                // SCORE CALCULATION
-                $this->score = $lsval;
-            }
-  
-            // SORT: COMPARE THE RANK FOR THIS DICTIONARY WORD
-            static function rank ( $a, $b ) {
-                // First sort by score, lower is better. (distance)
-                if ($a->score == $b->score) { 
-                    // Then sort by occurences, more is better. (frequency)
-                    if ($a->occur == $b->occur) {
-                        return 0;
-                    } 
-                    return ($a->occur < $b->occur) ? +1 : -1; // more is better
-                }
-                return ($a->score > $b->score) ? +1 : -1; // less is better
-            }
-        }
-  
-        //echo "<p>Iterate List</p>";
-        // This is the word to look up in the dictionary
-        $word = $_GET["word"];
-        // Iterate over the dictionary and calculate a score for each word
-        // We know the dictionary is a shallow JSON object, so this is always "str"=>"str"
-        foreach ($dictionary as $key => $val) { 
-            if ($word == $key) { // stop prematurely if we find the word
-                $found = $word;
-                break;
-            }
-            $wordlist[] = new Dictword($word,$key,$val); // add to the dict and calc score
-        } 
-        // Check if we found the word, or not (then suggest words).
-        if (isset($found)) { 
-            echo "<h1>found</h1>"; 
-        } else {
-            // Now sort by scores to get the best dictionary words
-            usort($wordlist, array("DictWord", "rank"));
-  
-            // Print it out as an HTML table to make it easy to look at
-            //echo "<p>Suggesting for: $word.</p>";
-            echo '<table class="bordered-table zebra-striped">
-                <thead><tr> <th>#</th>
-                <th>Dictionary Word</th> <th>Occurances in Text</th> <th>Calculated Score</th> 
-                </tr></thead>';
-            global $maxresults;
-            for ($i = 0; $i < $maxresults; $i++) {
-                $dword = $wordlist[$i]->dword;
-                $occur = $wordlist[$i]->occur;
-                $score = $wordlist[$i]->score;
-                echo "<tr><td>$i</td><td>$dword</td><td>$occur</td><td>$score</td></tr>";
-            }
-            echo "</table>"; 
-        }
-    }
-    ?>
-    </section>
-
-
-    <!-- Spellcheck
+    <!-- Contact
     ================================================== -->
     <section id="contact">
       <div class="page-header">

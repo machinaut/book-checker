@@ -23,6 +23,8 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     }
     echo "</ul>\n"; 
 }
+$lvalue = levenshtein("appel","apparey");
+echo "<p>$lvalue</p>"
 ?>
 </body>
 </html>

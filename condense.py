@@ -6,12 +6,12 @@ def condense(infile):
     # read in the file
     dictionary = dict() # irony :-)
     # peek at the first word, check that its not already JSON-ified
-    word = infile.readline().strip()
+    word = infile.readline().strip().lower()
     if word.find('{') >= 0: exit(1)
     # we're good, add it and read the rest of the words
     dictionary[word] = 1
     for word in infile.readlines():
-        word = word.strip()
+        word = word.strip().lower()
         if word in dictionary:
             dictionary[word] += 1
         else:
