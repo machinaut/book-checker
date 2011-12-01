@@ -1,0 +1,15 @@
+This class was writen by Felipe Ribeiro <felipernb@gmail.com> using the concepts
+of Peter Norvig available at www.norvig.com/spell-correct.html.
+
+To use this class, you should first download a sample text to be used as dictionary at:
+
+www.norvig.com/big.txt
+
+then just do:
+
+<?php
+include 'SpellCorrector.php';
+
+echo SpellCorrector::correct('octabr');
+//it will output *october*
+?>
