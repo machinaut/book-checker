@@ -3,14 +3,14 @@
 <head> <title> OH PHP HOW THIS GET HERE I AM NOT GOOD WITH COMPUTER </title> </head>
 <body>
 <?php 
-echo "<p> Hello World </p>";
 // Levenshtein Distance Constants (all ints)
-$lsins = 1; // Cost of insertion
-$lsrep = 1; // Cost of replacement
-$lsdel = 1; // Cost of deletion
+static $lsins = 1; // Cost of insertion
+static $lsrep = 1; // Cost of replacement
+static $lsdel = 1; // Cost of deletion
+echo "<p> Hello World </p>";
 if (!isset($_GET["word"]) || empty($_GET["word"])) {
     // If no word to compare, do nothing
-    echo "pick a word";
+    echo "<p>Please pick a word.</p>";
 } else {
     // grab the dictionary, stored in parsed JSON
     $json = file_get_contents("dict.json"); 
@@ -21,20 +21,33 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
             RecursiveIteratorIterator::SELF_FIRST);
 
     // class to store word and associated data
-    echo "<p> Class DictWord </p>";
+    echo "<p>Class DictWord</p>";
     class DictWord {
-        var $dword;
-        var $score;
-        var $lsval;
-        var $occur;
+        var $dword; // Actual dictionary word this represents
+        var $occur; // occurance of dictionary word in test
+        var $score; // calculated score to given base word
         // constructor
         function DictWord ($base,$dictword,$occur) {
-            $this->dword = $dictword;
-            $this->lsval = levenshtein($base,$dictword,$lsins,$lsrep,$lsdel); //distance
-            $this->occur = $occur; // occurences of word in moby dick
-            $this->score = $this->lsval + abs(strlen($dictword)-strlen($base));
+            $this->dword = $dictword;   // dictionary word
+
+            // CALCULATE THE SCORE FOR THIS DICTIONARY WORD
+            // --------------------------------------------
+            // ** MAGIC HAPPENS HERE **
+
+            // INPUTS TO THE SCORE CALCULATION
+            // Given Constants defined globally 
+            global $lsins, $lsrep, $lsdel; // levenshtein distance costs
+            // Given Occurences of the word in the text (how 'common' the word is)
+            $this->occur = $occur;
+            // Calculate Levenshtein Distance (basically how 'different' the word is)
+            $lsval = levenshtein($dictword,$base,$lsins,$lsrep,$lsdel);
+            // Calculate Difference in word lenths between
+            $diff = strlen($dictword) - strlen($base);
+
+            // SCORE CALCULATION
+            $this->score = $lsval;
         }
-        // static comparing, used for sorting an array of DictWords,
+        // static comparing, used for sorting an array of these
         static function cmp_obj ( $a, $b ) {
             if ($a->score == $b->score) { 
                 return 0; 
@@ -43,16 +56,12 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
         }
         // prettyprinting. Kind of evil there is HTML formatting in here
         public function __toString() {
-            return "<tr>
-                <td>$this->dword</td>
-                <td>$this->lsval</td>
-                <td>$this->occur</td>
-                <td>$this->score</td>
-                </tr>\n";
+            return "<tr> <td>$this->dword</td> <td>$this->occur</td>
+                <td>$this->score</td> </tr>\n";
         }
     }
 
-    echo "<p> Iterate List </p>";
+    echo "<p>Iterate List</p>";
     // This is the word to look up in the dictionary
     $word = $_GET["word"];
     // Iterate over the dictionary and calculate a score for each word
@@ -63,8 +72,10 @@ if (!isset($_GET["word"]) || empty($_GET["word"])) {
     // Now sort by scores to get the best dictionary words
     usort($wordlist, array("DictWord", "cmp_obj"));
 
-    echo "<table><tr> <td>Dictionary Word</td> <td>Levenshtein Distance</td> 
-            <td>Occurances in Text</td> <td>Calculated Score</td> </tr>\n";
+    // Print it out as an HTML table to make it easy to look at
+    echo "<p>Suggesting for: $word.</p>";
+    echo "<table><tr> <td>Dictionary Word</td> <td>Occurances in Text</td> 
+            <td>Calculated Score</td> </tr>\n";
     for ($i = 0; $i < 10; $i++) {
         echo $wordlist[$i];
     }
