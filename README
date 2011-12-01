@@ -13,8 +13,4 @@ a great (well-used) GNU project.
 
 Making the dictionary with aspell:
 ----------------------------------
- # Run these commands in the shell
-
- wget http://gutenberg.org/ebooks/2701.txt.utf8
-
- aspell --encoding=utf-8 --local-data-dir=./ --lang=en clean < 2701.txt.utf8 > moby.dict
+run the build.sh script. read it for more info.
