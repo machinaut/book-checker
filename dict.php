@@ -14,11 +14,9 @@
     <!-- Le styles -->
     <link rel="stylesheet" href="css/bootstrap.css">
     <link href="css/docs.css" rel="stylesheet">
-    <style type="text/css">
-      .centered {
-        text-align: center;
-      }
-    </style>
+
+    <!-- Le javascript -->
+    <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
 
   </head>
   <body>
@@ -87,33 +85,27 @@
       <div class="page-header">
         <h1>Lets check some spells <small>Or word some checks</small></h1>
       </div>
-      <div class="row">
-        <div class="span4">&nbsp;
-        </div><!-- /span4 -->
-        <div class="span12">
-          <form>
-            <fieldset>
-              <legend>Search Terms</legend>
-              <div class="clearfix">
-                <label for="book">Book</label>
-                <div class="xlarge input">
-                  <input id="book" type="text" placeholder="Moby Dick" disabled/>
-                </div>
-              </div><!-- /clearfix -->
-              <div class="clearfix success">
-                <label for="word">Word</label>
-                <div class="xlarge input">
-                  <input id="word" type="text"/>
-                  <span class="help-inline">Correct Word!</span>
-                </div>
-              </div><!-- /clearfix -->
-              <div class="actions">
-                <button class="btn primary">Check!</button>
-              </div><!-- /actions -->
-            </fieldset>
-          </form>
-        </div><!-- /span12 -->
-      </div><!-- /row -->
+      <form>
+        <fieldset>
+          <legend>Search Terms</legend>
+          <div class="clearfix">
+            <label for="book">Book</label>
+            <div class="xlarge input">
+              <input id="book" type="text" placeholder="Moby Dick" disabled/>
+            </div>
+          </div><!-- /clearfix -->
+          <div class="clearfix success">
+            <label for="word">Word</label>
+            <div class="xlarge input">
+              <input id="word" type="text"/>
+              <span class="help-inline">Correct Word!</span>
+            </div>
+          </div><!-- /clearfix -->
+          <div class="actions">
+            <button class="btn primary">Check!</button>
+          </div><!-- /actions -->
+        </fieldset>
+      </form>
     </section>
 
 
@@ -241,8 +233,9 @@
     <footer class="footer">
       <div class="container">
         <p class="pull-right"><a href="#">Back to top</a></p>
-        <p> Fueled by coffee: <a href="http://twitter.com/machinaut" target="_blank">@machinaut
-          </a> (le twitter) <br />
+        <p> Fueled by coffee: 
+          <a href="http://twitter.com/machinaut" target="_blank">@machinaut </a> (le twitter) 
+          <br />
           Code licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" 
           target="_blank">Apache License v2.0</a>.  Documentation licensed under 
           <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
@@ -250,16 +243,6 @@
       </div>
     </footer>
 
-
-    <!-- Le javascript -->
-    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
-    <script src="http://autobahn.tablesorter.com/jquery.tablesorter.min.js"></script>
-    <script src="assets/js/google-code-prettify/prettify.js"></script>
-    <script>$(function () { prettyPrint() })</script>
-    <script src="1.4.0/bootstrap-dropdown.js"></script>
-    <script src="1.4.0/bootstrap-twipsy.js"></script>
-    <script src="1.4.0/bootstrap-scrollspy.js"></script>
-    <script src="assets/js/application.js"></script>
 
   </body>
 </html>
