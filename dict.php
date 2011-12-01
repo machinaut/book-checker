@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
-<head> <title> OH PHP HOW THIS GET HERE I AM NOT GOOD WITH COMPUTER </title> </head>
+<head> 
+<title> OH PHP HOW THIS GET HERE I AM NOT GOOD WITH COMPUTER </title>
+<link rel="stylesheet/less" href="bs/bootstrap.less">
+<script src="bs/less.js"></script>
+</head>
 <body>
 <?php 
 // Dictionary filename
