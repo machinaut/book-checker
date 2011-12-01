@@ -1,3 +1,10 @@
+dict.php
+--------
+My attempt to make a dictionary-based spellchecker based on Moby Dick.  General strategy is
+to us the Levenshtein Distance as well as word frequency in the text.  I am NOT using common
+english metaphones to catch soundslike equivalents, or using a map of a standard QWERTY keyboard.
+Partially inspired by: http://aspell.net/man-html/Aspell-Suggestion-Strategy.html
+
 cheat.php
 ---------
 To someone that really loves a good algorithmic challenge, this feels like cheating.
@@ -5,6 +12,9 @@ But the duct-tape coder in me loves reusing code. And open source fan supports u
 a great (well-used) GNU project.
 
 Making the dictionary with aspell:
+----------------------------------
+ # Run these commands in the shell
+
  wget http://gutenberg.org/ebooks/2701.txt.utf8
 
  aspell --encoding=utf-8 --local-data-dir=./ --lang=en clean < 2701.txt.utf8 > moby.dict

@@ -7,18 +7,17 @@
 static $lsins = 1; // Cost of insertion
 static $lsrep = 1; // Cost of replacement
 static $lsdel = 1; // Cost of deletion
+// File locations
+static $dictfilename = "/moby.dict";
 echo "<p> Hello World </p>";
 if (!isset($_GET["word"]) || empty($_GET["word"])) {
     // If no word to compare, do nothing
     echo "<p>Please pick a word.</p>";
 } else {
-    // grab the dictionary, stored in parsed JSON
-    $json = file_get_contents("dict.json"); 
-
-    // iterate over every word in the dictionary
-    $jsonIterator = new RecursiveIteratorIterator(
-            new RecursiveArrayIterator(json_decode($json, TRUE)),
-            RecursiveIteratorIterator::SELF_FIRST);
+    // Read over the corpus, preprocessed and broken into lines, see README
+    global $dictfilename;
+    $lines = file($dictfilename);
+    foreach (
 
     // class to store word and associated data
     echo "<p>Class DictWord</p>";
